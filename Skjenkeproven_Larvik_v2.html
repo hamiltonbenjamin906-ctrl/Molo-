@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skjenkeprøven Larvik</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:1000px;margin:auto;padding:20px}
+.card{border:1px solid #ddd;border-radius:8px;padding:15px;margin:10px 0}
+.correct{color:green;font-weight:bold}
+.wrong{color:#b00020;font-weight:bold}
+button{padding:10px 18px;font-size:16px}
+</style>
+</head>
+<body>
+<h1>Skjenkeprøven Larvik – Test deg selv</h1>
+<p>30 spørsmål trekkes tilfeldig fra spørsmålsbanken hver gang. Resultatet viser hvilke spørsmål som var riktige og feil.</p>
+<button onclick="startQuiz()">Start ny prøve</button>
+<div id="quiz"></div>
+
+<script>
+const bank = [
+{q:"Formålet med internkontroll?",a:["Å sikre og dokumentere at virksomheten følger regelverket","Å bestemme priser","Å registrere gjester"],c:0},
+{q:"Sentral oppgave for styrer?",a:["Se til at skjenking skjer etter regelverket","Fastsette skjenketider","Føre regnskap"],c:0},
+{q:"Alkoholgruppe 1?",a:["Over 2,5 til og med 4,7%","Over 4,7 til under 22%","22–60%"],c:0},
+{q:"Alkoholgruppe 2?",a:["Over 4,7 til under 22%","Over 2,5 til og med 4,7%","22–60%"],c:0},
+{q:"Alkoholgruppe 3?",a:["Over 4,7 til under 22%","Over 22 til over 60%","22–60%"],c:2},
+{q:"Hvem kontrollerer kommunale skjenkesteder?",a:["Kommunen","Vinmonopolet","Tollvesenet"],c:0},
+{q:"Alder for styrer/stedfortreder?",a:["18","20","25"],c:1},
+{q:"Kunnskapsprøve for ambulerende bevilling?",a:["Ja","Nei","Kun gruppe 3"],c:1},
+{q:"Alder for gruppe 1?",a:["16","18","20"],c:1},
+{q:"Hvor mange spørsmål består prøven av?",a:["20","30","40"],c:1},
+{q:"Ansvar for regelmessig skjenking?",a:["Gjesten","Bevillingshaver og ansvarlige","Politiet"],c:1},
+{q:"Skjenketid gruppe 1 og 2 i Larvik?",a:["08–02","08–03","13–03"],c:0},
+{q:"Privat vaktselskap til kontroll?",a:["Ja, når krav er oppfylt","Nei","Ja uten kunnskapsprøve"],c:0},
+{q:"Hvilke bevillinger trengs normalt?",a:["Kun skjenkebevilling","Serverings- og skjenkebevilling","Kun serveringsbevilling"],c:1},
+{q:"Alder for gruppe 3?",a:["18","19","20"],c:2},
+{q:"Konsumtid etter skjenkeslutt?",a:["15 min","30 min","60 min"],c:1},
+{q:"Beståttgrense?",a:["20","24","27"],c:1},
+{q:"Kan åpenbart påvirkede serveres?",a:["Ja","Ja hvis over 20","Nei"],c:2},
+{q:"Tid til elektronisk prøve?",a:["30","60","90"],c:1},
+{q:"Kan kommunen ha kortere tider?",a:["Ja","Nei","Bare politiet"],c:0},
+{q:"Be om legitimasjon ved tvil om alder?",a:["Ja","Nei","Spør annen gjest"],c:0},
+{q:"12 prikker gir?",a:["1 ukes inndragning","Advarsel","Permanent"],c:0},
+{q:"Bevillingsmyndighet?",a:["Kommunen","Politiet","Skatteetaten"],c:0},
+{q:"Kan alkohol skjenkes etter skjenketid?",a:["Ja","Nei","Litt igjen"],c:1},
+{q:"Skjenketid gruppe 3 i Larvik?",a:["08–02","13–02","13–03"],c:1},
+{q:"Må styrer og stedfortreder ha prøven?",a:["Ja","Nei","Bare styrer"],c:0},
+{q:"Åpningstid serveringssteder?",a:["01.00","02.30","03.30"],c:1},
+{q:"Uteservering sommer stengt?",a:["01–06","02.30–06","03.30–06"],c:2},
+{q:"Uteservering vinter stengt?",a:["00–06","01–06","02.30–06"],c:1},
+{q:"Sentrumssonen sommer?",a:["Gr 1-2 til 03, gr 3 fra 13 til 03","Alt stopper 02","Gr 3 fra 08"],c:0}
+];
+
+let current=[];
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+
+function startQuiz(){
+ current = shuffle(bank).slice(0,30);
+ let html='<form id="quizForm">';
+ current.forEach((q,i)=>{
+   html += `<div class="card"><b>${i+1}. ${q.q}</b><br>`;
+   q.a.forEach((ans,j)=>{
+      html += `<label><input type="radio" name="q${i}" value="${j}"> ${ans}</label><br>`;
+   });
+   html += '</div>';
+ });
+ html += '<button type="button" onclick="submitQuiz()">Lever prøve</button></form>';
+ document.getElementById('quiz').innerHTML = html;
+}
+
+function submitQuiz(){
+ let score=0, out='<h2>Resultat</h2>';
+ current.forEach((q,i)=>{
+   let chosen=document.querySelector(`input[name=q${i}]:checked`);
+   let user=chosen?Number(chosen.value):-1;
+   let ok=user===q.c;
+   if(ok) score++;
+   out += `<div class="card"><b>${i+1}. ${q.q}</b><br>`;
+   out += ok ? `<span class="correct">✔ Riktig</span>` : `<span class="wrong">✘ Feil</span><br>Riktig svar: ${q.a[q.c]}`;
+   out += '</div>';
+ });
+ out = `<div class="card"><h3>Poeng: ${score}/30</h3><h3>${score>=24?'BESTÅTT':'IKKE BESTÅTT'}</h3></div>` + out;
+ document.getElementById('quiz').innerHTML = out;
+}
+</script>
+</body>
+</html>
